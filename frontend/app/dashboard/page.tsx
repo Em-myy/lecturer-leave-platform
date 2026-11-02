@@ -1,3 +1,5 @@
+"use client";
+
 import { signOut, useSession } from "@/lib/auth-client";
 import Link from "next/link";
 
