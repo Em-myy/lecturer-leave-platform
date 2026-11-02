@@ -1,5 +1,5 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import { toNodeHandler } from "better-auth/node";
@@ -8,11 +8,13 @@ import dns from "node:dns";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-dotenv.config();
-
 const server = express();
 
-server.use(express.json());
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to database"))
+  .catch((err) => console.log("Database error", err));
+
 server.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -20,12 +22,9 @@ server.use(
   }),
 );
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("Connected to database"))
-  .catch((err) => console.log("Database error", err));
+server.all("/api/auth/*splat", toNodeHandler(auth));
 
-server.all("/api/auth/{*any}", toNodeHandler(auth));
+server.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
