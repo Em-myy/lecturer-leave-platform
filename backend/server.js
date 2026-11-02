@@ -2,18 +2,22 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./utils/auth.js";
 import dns from "node:dns";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const server = express();
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("Connected to database"))
-  .catch((err) => console.log("Database error", err));
+try {
+  await mongoose.connect(process.env.MONGODB_URI);
+  console.log("Connected to database");
+} catch (error) {
+  console.log("Database error", error);
+  process.exit(1);
+}
+
+const { auth } = await import("./utils/auth.js");
+const { toNodeHandler } = await import("better-auth/node");
 
 server.use(
   cors({
