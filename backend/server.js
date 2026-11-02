@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dns from "node:dns";
+import leaveRoutes from "./routes/leaveRoutes.js";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
@@ -26,7 +27,9 @@ server.use(
   }),
 );
 
-server.all("/api/auth/*splat", toNodeHandler(auth));
+server.all("/api/auth/{*any}", toNodeHandler(auth));
+
+server.use("/api/leaves", leaveRoutes);
 
 server.use(express.json());
 
