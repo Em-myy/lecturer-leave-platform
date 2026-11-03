@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import { signIn, signUp } from "@/lib/auth-client";
 import { DEPARTMENTS } from "@/utils/helper";
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ interface FormType {
 
 export default function Home() {
   const router = useRouter();
+  const { profile } = useAuth();
 
   const [formData, setFormData] = useState<FormType>({
     name: "",
@@ -45,7 +47,13 @@ export default function Home() {
         return;
       }
 
-      router.push("/dashboard");
+      if (profile?.role === "lecturer") {
+        router.replace("/lecturer/home");
+      } else if (profile?.role === "hod") {
+        router.replace("/hod/home");
+      } else {
+        router.replace("/");
+      }
     } finally {
       setLoading(false);
     }
