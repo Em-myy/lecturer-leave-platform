@@ -1,13 +1,12 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
-import { signIn, signUp } from "@/lib/auth-client";
 import { DEPARTMENTS } from "@/utils/helper";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface FormType {
-  name: string;
+  fullname: string;
   email: string;
   password: string;
   department: string;
@@ -15,10 +14,10 @@ interface FormType {
 
 export default function Home() {
   const router = useRouter();
-  const { profile } = useAuth();
+  const supabase = createClient();
 
   const [formData, setFormData] = useState<FormType>({
-    name: "",
+    fullname: "",
     email: "",
     password: "",
     department: "",
@@ -36,23 +35,38 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const { data, error: signInError } = await signIn.email({
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
 
       if (signInError) {
         console.log(signInError);
-        setLoading(false);
         return;
       }
 
-      if (profile?.role === "lecturer") {
-        router.replace("/lecturer/home");
-      } else if (profile?.role === "hod") {
-        router.replace("/hod/home");
-      } else {
-        router.replace("/");
+      if (data.user) {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Error fetching profile role:", profileError.message);
+          return;
+        }
+
+        if (profileData.role === "lecturer") {
+          router.replace("/lecturer/home");
+        } else if (profileData.role === "hod") {
+          router.replace("/hod/home");
+        } else {
+          router.replace("/");
+        }
+
+        router.refresh();
       }
     } finally {
       setLoading(false);
@@ -64,17 +78,20 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const { data, error: signUpError } = await signUp.email({
-        name: formData.name,
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        department: formData.department,
-        callbackURL: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`,
+        options: {
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`,
+          data: {
+            fullname: formData.fullname,
+            department: formData.department,
+          },
+        },
       });
 
       if (signUpError) {
         console.log(signUpError);
-        setLoading(false);
         return;
       }
 
@@ -111,7 +128,9 @@ export default function Home() {
             />
           </div>
 
-          <button type="submit">{loading ? "Signing In..." : "Sign In"}</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
         </form>
       </div>
 
@@ -122,7 +141,7 @@ export default function Home() {
             <label>Name:</label>
             <input
               type="text"
-              name="name"
+              name="fullname"
               placeholder="Famuyiwa Emmanuel"
               required
               onChange={handleFormChange}
