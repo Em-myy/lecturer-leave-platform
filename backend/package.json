@@ -9,13 +9,10 @@
     "start": "nodemon server.js"
   },
   "dependencies": {
-    "@better-auth/mongo-adapter": "^1.7.15",
-    "better-auth": "^1.7.15",
+    "@supabase/server": "^1.9.2",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
-    "mongodb": "^7.8.0",
-    "mongoose": "^9.11.4",
     "nodemailer": "^10.3.1",
     "nodemon": "^3.1.14"
   }
