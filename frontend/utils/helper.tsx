@@ -6,14 +6,20 @@ export const DEPARTMENTS = [
   "Computer Science",
 ];
 
-export type ProfileType = {
+export interface LeaveRequest {
   id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  email: string;
-  emailVerified: boolean;
-  name: string;
-  image?: string | null | undefined;
-  department: string;
-  role?: string | null | undefined;
-};
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+}
+
+export interface HodLeaveRequest {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  profiles?: { fullname: string };
+}
