@@ -96,7 +96,7 @@ export const getLeaves = async (req, res) => {
   }
 };
 
-export const requestHodRole = async () => {
+export const requestHodRole = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader ? authHeader.split(" ")[1] : null;
