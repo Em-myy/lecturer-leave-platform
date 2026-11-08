@@ -1,10 +1,8 @@
 import express from "express";
 import {
   applyForLeave,
-  getAllLeaves,
-  getLeaveById,
   getLeaves,
-  updateLeaveStatus,
+  requestHodRole,
 } from "../controller/leaveController.js";
 
 const router = express.Router();
@@ -13,10 +11,6 @@ const router = express.Router();
 router.post("/", applyForLeave);
 router.get("/", getLeaves);
 
-// hod routes
-router.get("/all-leaves", getAllLeaves);
-
-router.get("/:leaveId", getLeaveById);
-router.patch("/:leaveId/status", updateLeaveStatus);
+router.post("/request-hod", requestHodRole);
 
 export default router;
