@@ -16,7 +16,7 @@ server.use(
 server.use(express.json());
 
 server.use("/api/leaves", leaveRoutes);
-server.use("/api/admin", adminRoutes);
+server.use("/api/hod", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
