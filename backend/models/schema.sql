@@ -1,6 +1,7 @@
 -- 1. Create Enums
 CREATE TYPE user_role AS ENUM ('lecturer', 'hod');
 CREATE TYPE leave_status AS ENUM ('pending', 'approved', 'rejected');
+CREATE TYPE request_type AS ENUM('none', 'pending_hod', 'approved', 'rejected')
 
 -- 2. Create Profiles Table (Added email column)
 CREATE TABLE public.profiles (
@@ -76,3 +77,7 @@ CREATE POLICY "View leaves based on role"
 CREATE POLICY "Lecturers can create leaves"
   ON public.leave FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = lecturer_id);
+
+-- for hod sign up
+ALTER TABLE public.profiles 
+ADD COLUMN role_request request_type DEFAULT 'none';
