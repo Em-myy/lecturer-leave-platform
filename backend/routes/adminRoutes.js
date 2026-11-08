@@ -1,6 +1,8 @@
 import express from "express";
 import {
-  requestHodRole,
+  getAllLeaves,
+  getLeaveById,
+  updateLeaveStatus,
   getPendingHodRequests,
   approveHodRequest,
   rejectHodRequest,
@@ -8,7 +10,11 @@ import {
 
 const router = express.Router();
 
-router.post("/request-hod", requestHodRole);
+router.get("/all-leaves", getAllLeaves);
+
+router.get("/:leaveId", getLeaveById);
+router.patch("/:leaveId/status", updateLeaveStatus);
+
 router.get("/requests", getPendingHodRequests);
 router.post("/approve-hod", approveHodRequest);
 router.post("/reject-hod", rejectHodRequest);
