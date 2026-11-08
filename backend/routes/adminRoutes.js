@@ -12,11 +12,11 @@ const router = express.Router();
 
 router.get("/all-leaves", getAllLeaves);
 
-router.get("/:leaveId", getLeaveById);
-router.patch("/:leaveId/status", updateLeaveStatus);
-
 router.get("/requests", getPendingHodRequests);
 router.post("/approve-hod", approveHodRequest);
 router.post("/reject-hod", rejectHodRequest);
+
+router.get("/:leaveId", getLeaveById);
+router.patch("/:leaveId/status", updateLeaveStatus);
 
 export default router;

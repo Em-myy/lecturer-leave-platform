@@ -138,7 +138,7 @@ export const getLeaveById = async (req, res) => {
   }
 };
 
-export const getPendingHodRequests = async () => {
+export const getPendingHodRequests = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader ? authHeader.split(" ")[1] : null;
@@ -169,7 +169,7 @@ export const getPendingHodRequests = async () => {
   }
 };
 
-export const approveHodRequest = async () => {
+export const approveHodRequest = async (req, res) => {
   try {
     const { targetUserId } = req.body; // The lecturer being promoted
     const authHeader = req.headers.authorization;
@@ -207,7 +207,7 @@ export const approveHodRequest = async () => {
   }
 };
 
-export const rejectHodRequest = async () => {
+export const rejectHodRequest = async (req, res) => {
   try {
     const { targetUserId } = req.body;
     const authHeader = req.headers.authorization;
