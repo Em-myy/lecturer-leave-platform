@@ -1,10 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-// import dns from "node:dns";
 import leaveRoutes from "./routes/leaveRoutes.js";
-
-// dns.setServers(["8.8.8.8", "1.1.1.1"]);
+import adminRoutes from "./routes/adminRoutes.js";
 
 const server = express();
 
@@ -18,6 +16,7 @@ server.use(
 server.use(express.json());
 
 server.use("/api/leaves", leaveRoutes);
+server.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
