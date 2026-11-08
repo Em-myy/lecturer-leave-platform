@@ -1,7 +1,7 @@
 -- 1. Create Enums
 CREATE TYPE user_role AS ENUM ('lecturer', 'hod');
 CREATE TYPE leave_status AS ENUM ('pending', 'approved', 'rejected');
-CREATE TYPE request_type AS ENUM('none', 'pending_hod', 'approved', 'rejected')
+CREATE TYPE request_type AS ENUM('none', 'pending_hod', 'approved', 'rejected');
 
 -- 2. Create Profiles Table (Added email column)
 CREATE TABLE public.profiles (
