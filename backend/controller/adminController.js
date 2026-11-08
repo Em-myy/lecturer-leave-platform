@@ -1,23 +1,140 @@
 import { supabase } from "../utils/supabase.js";
 
-export const requestHodRole = async () => {
+export const updateLeaveStatus = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader ? authHeader.split(" ")[1] : null;
+
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser(token);
+    if (authError || !user)
+      return res.status(401).json({ error: "Invalid token" });
 
-    // Update the profile's role_request column
-    const { error } = await supabase
+    const { data: profile } = await supabase
       .from("profiles")
-      .update({ role_request: "pending_hod" })
-      .eq("id", user.id);
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-    if (error) throw error;
-    res.status(200).json({ message: "Request submitted successfully" });
+    if (profile?.role !== "hod") {
+      return res
+        .status(403)
+        .json({ error: "Only HODs can update leave status" });
+    }
+
+    const { leaveId } = req.params;
+    const { status } = req.body;
+
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status update" });
+    }
+
+    const { data: updatedLeave, error: updateError } = await supabase
+      .from("leave")
+      .update({ status: status })
+      .eq("id", leaveId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    res.status(200).json(updatedLeave);
   } catch (error) {
-    res.status(500).json({ error: "Failed to submit request" });
+    console.error("Status update error:", error);
+    res.status(500).json({ error: "Failed to update leave status" });
+  }
+};
+
+export const getAllLeaves = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader ? authHeader.split(" ")[1] : null;
+
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+    if (authError || !user)
+      return res.status(401).json({ error: "Invalid token" });
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, department")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role !== "hod") {
+      return res
+        .status(403)
+        .json({ error: "Only HODs can view department leaves" });
+    }
+
+    const { data: leaves, error: fetchError } = await supabase
+      .from("leave")
+      .select(
+        `
+        *,
+        profiles ( fullname )
+      `,
+      )
+      .eq("department", profile.department)
+      .order("created_at", { ascending: false });
+
+    if (fetchError) throw fetchError;
+
+    res.status(200).json(leaves);
+  } catch (error) {
+    console.error("Fetch department leaves error:", error);
+    res.status(500).json({ error: "Failed to fetch department leaves" });
+  }
+};
+
+export const getLeaveById = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader ? authHeader.split(" ")[1] : null;
+
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+    if (authError || !user)
+      return res.status(401).json({ error: "Invalid token" });
+
+    const { leaveId } = req.params;
+
+    const { data: leave, error: fetchError } = await supabase
+      .from("leave")
+      .select(
+        `
+        *,
+        profiles ( fullname )
+      `,
+      )
+      .eq("id", leaveId)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
+        return res
+          .status(404)
+          .json({ error: "Leave request not found or unauthorized" });
+      }
+      throw fetchError;
+    }
+
+    res.status(200).json(leave);
+  } catch (error) {
+    console.error("Fetch single leave error:", error);
+    res.status(500).json({ error: "Failed to fetch leave details" });
   }
 };
 
@@ -117,11 +234,9 @@ export const rejectHodRequest = async () => {
 
     await supabase.from("profiles").delete().eq("id", targetUserId);
 
-    res
-      .status(200)
-      .json({
-        message: "Fraudulent request rejected. Account permanently deleted.",
-      });
+    res.status(200).json({
+      message: "Fraudulent request rejected. Account permanently deleted.",
+    });
   } catch (error) {
     console.error("Reject HOD request error:", error);
     res.status(500).json({ error: "Failed to reject and delete account" });
