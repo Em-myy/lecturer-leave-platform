@@ -82,7 +82,7 @@ export const getLeaves = async (req, res) => {
     const { data: leaves, error: fetchError } = await supabase
       .from("leave")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("lecturer_id", user.id)
       .order("created_at", { ascending: false });
 
     if (fetchError) {
