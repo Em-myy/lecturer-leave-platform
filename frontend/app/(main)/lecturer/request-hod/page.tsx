@@ -23,7 +23,7 @@ const RequestHodPage = () => {
     setSuccessMsg(null);
 
     try {
-      await apiClient.post("/request-hod");
+      await apiClient.post("/leaves/request-hod");
       setSuccessMsg(
         "Request submitted successfully to the current HOD. Redirecting to dashboard...",
       );
